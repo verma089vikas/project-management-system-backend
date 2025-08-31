@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface TaskDependencyRepository extends JpaRepository<TaskDependency, Long> {
     List<TaskDependency> findByTaskId(Long taskId);
+    List<TaskDependency> findByDependsOnTaskId(Long dependsOnTaskId);
 }

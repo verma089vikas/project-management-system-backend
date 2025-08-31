@@ -35,8 +35,14 @@ public class Project {
 
     private LocalDateTime createdAt;
 
+    // New field for completion percentage
+    private Double completionPercentage;
+
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
+        if (this.completionPercentage == null) {
+            this.completionPercentage = 0.0;
+        }
     }
 }

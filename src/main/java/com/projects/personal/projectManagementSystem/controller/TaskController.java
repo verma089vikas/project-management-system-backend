@@ -2,6 +2,7 @@ package com.projects.personal.projectManagementSystem.controller;
 
 import com.projects.personal.projectManagementSystem.entity.Task;
 import com.projects.personal.projectManagementSystem.entity.TaskDependency;
+import com.projects.personal.projectManagementSystem.enums.TaskStatus;
 import com.projects.personal.projectManagementSystem.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -49,5 +50,14 @@ public class TaskController {
     @GetMapping("/{id}/dependencies")
     public ResponseEntity<List<TaskDependency>> getDependencies(@PathVariable Long id) {
         return ResponseEntity.ok(taskService.getDependencies(id));
+    }
+
+    @PutMapping("/{taskId}/status")
+    public ResponseEntity<Task> updateTaskStatus(
+            @PathVariable Long taskId,
+            @RequestParam TaskStatus status
+    ) {
+        Task updatedTask = taskService.updateTaskStatus(taskId, status);
+        return ResponseEntity.ok(updatedTask);
     }
 }

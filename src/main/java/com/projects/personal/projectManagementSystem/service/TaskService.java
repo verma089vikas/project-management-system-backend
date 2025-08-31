@@ -2,6 +2,8 @@ package com.projects.personal.projectManagementSystem.service;
 
 import com.projects.personal.projectManagementSystem.entity.Task;
 import com.projects.personal.projectManagementSystem.entity.TaskDependency;
+import com.projects.personal.projectManagementSystem.enums.TaskStatus;
+
 import java.util.List;
 
 public interface TaskService {
@@ -11,4 +13,5 @@ public interface TaskService {
     Task updateTask(Long id, Task taskDetails);
     void deleteTask(Long id);
     List<TaskDependency> getDependencies(Long taskId);
+    Task updateTaskStatus(Long taskId, TaskStatus newStatus);
 }

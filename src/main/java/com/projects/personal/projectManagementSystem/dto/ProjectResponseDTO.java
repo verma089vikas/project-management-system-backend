@@ -1,4 +1,5 @@
 package com.projects.personal.projectManagementSystem.dto;
+
 import com.projects.personal.projectManagementSystem.enums.ProjectStatus;
 import lombok.*;
 import java.time.LocalDate;
@@ -15,4 +16,5 @@ public class ProjectResponseDTO {
     private ProjectStatus status;
     private Long ownerId;
     private String ownerName;
+    private Double completionPercentage; // Added field
 }

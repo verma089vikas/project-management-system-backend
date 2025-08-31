@@ -2,6 +2,8 @@ package com.projects.personal.projectManagementSystem.service.Impl;
 
 import com.projects.personal.projectManagementSystem.entity.Task;
 import com.projects.personal.projectManagementSystem.entity.TaskDependency;
+import com.projects.personal.projectManagementSystem.enums.TaskStatus;
+import com.projects.personal.projectManagementSystem.exception.ResourceNotFoundException;
 import com.projects.personal.projectManagementSystem.repository.TaskRepository;
 import com.projects.personal.projectManagementSystem.repository.TaskDependencyRepository;
 import com.projects.personal.projectManagementSystem.service.TaskService;
@@ -18,6 +20,7 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final TaskDependencyRepository taskDependencyRepository;
+    private final ProjectServiceImpl projectService;
 
     @Override
     @Transactional
@@ -37,6 +40,8 @@ public class TaskServiceImpl implements TaskService {
             }
         }
 
+        projectService.updateProjectCompletion(task.getProject().getId());
+
         return savedTask;
     }
 
@@ -53,28 +58,59 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public Task updateTask(Long id, Task taskDetails) {
-        Task existingTask = getTaskById(id);
-        existingTask.setTitle(taskDetails.getTitle());
-        existingTask.setDescription(taskDetails.getDescription());
-        existingTask.setStatus(taskDetails.getStatus());
-        existingTask.setPriority(taskDetails.getPriority());
-        existingTask.setEstimatedHours(taskDetails.getEstimatedHours());
-        existingTask.setAssignee(taskDetails.getAssignee());
-        existingTask.setProject(taskDetails.getProject());
-        return taskRepository.save(existingTask);
+    public Task updateTask(Long id, Task updatedTask) {
+        Task existingTask = taskRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Task not found with ID: " + id));
+
+        existingTask.setTitle(updatedTask.getTitle());
+        existingTask.setDescription(updatedTask.getDescription());
+        existingTask.setStatus(updatedTask.getStatus());
+        existingTask.setPriority(updatedTask.getPriority());
+        existingTask.setEstimatedHours(updatedTask.getEstimatedHours());
+
+        Task savedTask = taskRepository.save(existingTask);
+
+        // Recalculate completion percentage after status update
+        projectService.updateProjectCompletion(savedTask.getProject().getId());
+
+        return savedTask;
     }
+
 
     @Override
     @Transactional
     public void deleteTask(Long id) {
         Task task = getTaskById(id);
+        Long projectId = task.getProject().getId(); // Get project ID before deleting
+
         taskDependencyRepository.deleteAll(taskDependencyRepository.findByTaskId(id));
+        taskDependencyRepository.deleteAll(taskDependencyRepository.findByDependsOnTaskId(id));
         taskRepository.delete(task);
+        projectService.updateProjectCompletion(projectId);
     }
+
 
     @Override
     public List<TaskDependency> getDependencies(Long taskId) {
         return taskDependencyRepository.findByTaskId(taskId);
+    }
+
+    @Override
+    @Transactional
+    public Task updateTaskStatus(Long taskId, TaskStatus newStatus) {
+        // Fetch task by ID
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
+
+        // Update status
+        task.setStatus(newStatus);
+        Task updatedTask = taskRepository.save(task);
+
+        // Recalculate completion percentage if task is linked to a project
+        if (task.getProject() != null) {
+            projectService.updateProjectCompletion(task.getProject().getId());
+        }
+
+        return updatedTask;
     }
 }
