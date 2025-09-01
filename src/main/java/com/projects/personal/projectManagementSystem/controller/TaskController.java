@@ -1,5 +1,7 @@
 package com.projects.personal.projectManagementSystem.controller;
 
+import com.projects.personal.projectManagementSystem.dto.TaskRequestDTO;
+import com.projects.personal.projectManagementSystem.dto.TaskResponseDTO;
 import com.projects.personal.projectManagementSystem.entity.Task;
 import com.projects.personal.projectManagementSystem.entity.TaskDependency;
 import com.projects.personal.projectManagementSystem.enums.TaskStatus;
@@ -16,14 +18,6 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    @PostMapping
-    public ResponseEntity<Task> createTask(
-            @RequestBody Task task,
-            @RequestParam(required = false) List<Long> dependencyIds) {
-        Task createdTask = taskService.createTask(task, dependencyIds);
-        return ResponseEntity.ok(createdTask);
-    }
-
     @GetMapping
     public ResponseEntity<List<Task>> getAllTasks() {
         return ResponseEntity.ok(taskService.getAllTasks());
@@ -34,11 +28,14 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTaskById(id));
     }
 
+    @PostMapping
+    public ResponseEntity<TaskResponseDTO> createTask(@RequestBody TaskRequestDTO request) {
+        return ResponseEntity.ok(taskService.createTask(request));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Task> updateTask(
-            @PathVariable Long id,
-            @RequestBody Task taskDetails) {
-        return ResponseEntity.ok(taskService.updateTask(id, taskDetails));
+    public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long id, @RequestBody TaskRequestDTO request) {
+        return ResponseEntity.ok(taskService.updateTask(id, request));
     }
 
     @DeleteMapping("/{id}")

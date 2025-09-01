@@ -30,7 +30,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDetails> handleGlobalException(Exception ex) {
-        ErrorDetails error = new ErrorDetails(LocalDateTime.now(), "svfni", "INTERNAL_SERVER_ERROR");
+        // Log the complete error with stack trace for debugging
+        ex.printStackTrace();
+
+        // Return more meaningful error details
+        ErrorDetails error = new ErrorDetails(
+                LocalDateTime.now(),
+                ex.getMessage(),        // capture the actual error message
+                "INTERNAL_SERVER_ERROR"
+        );
+
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 }
