@@ -113,4 +113,15 @@ public class TaskServiceImpl implements TaskService {
 
         return updatedTask;
     }
+
+    @Override
+    public List<Task> getTasksByProjectId(Long projectId) {
+        List<Task> tasks = taskRepository.findByProjectId(projectId);
+        if (tasks.isEmpty()) {
+            throw new EntityNotFoundException("No tasks found for project ID: " + projectId);
+        }
+        return tasks;
+    }
+
+
 }
