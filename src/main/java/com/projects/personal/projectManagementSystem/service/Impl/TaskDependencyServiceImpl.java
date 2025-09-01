@@ -22,15 +22,15 @@ public class TaskDependencyServiceImpl implements TaskDependencyService {
     @Override
     @Transactional
     public TaskDependency createDependency(Long taskId, Long dependsOnTaskId) {
-        if (taskId.equals(dependsOnTaskId)) {
-            throw new IllegalArgumentException("A task cannot depend on itself.");
-        }
-
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new EntityNotFoundException("Task not found with ID: " + taskId));
-
+                .orElseThrow(() -> new EntityNotFoundException("Task not found: " + taskId));
         Task dependsOnTask = taskRepository.findById(dependsOnTaskId)
-                .orElseThrow(() -> new EntityNotFoundException("Dependent Task not found with ID: " + dependsOnTaskId));
+                .orElseThrow(() -> new EntityNotFoundException("Task not found: " + dependsOnTaskId));
+
+        // Check for cycle before saving
+        if (isCyclePresent(taskId, dependsOnTaskId)) {
+            throw new IllegalArgumentException("Circular dependency detected! Cannot create dependency.");
+        }
 
         TaskDependency dependency = TaskDependency.builder()
                 .task(task)
@@ -39,6 +39,26 @@ public class TaskDependencyServiceImpl implements TaskDependencyService {
 
         return taskDependencyRepository.save(dependency);
     }
+
+    private boolean isCyclePresent(Long taskId, Long dependsOnTaskId) {
+        return dfsCheck(dependsOnTaskId, taskId);
+    }
+
+    private boolean dfsCheck(Long currentTaskId, Long targetTaskId) {
+        if (currentTaskId.equals(targetTaskId)) {
+            return true; // cycle found
+        }
+
+        List<Long> dependencies = taskDependencyRepository.findDependenciesByTaskId(currentTaskId);
+        for (Long depId : dependencies) {
+            if (dfsCheck(depId, targetTaskId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
     @Override
     public List<TaskDependency> getDependenciesByTask(Long taskId) {
