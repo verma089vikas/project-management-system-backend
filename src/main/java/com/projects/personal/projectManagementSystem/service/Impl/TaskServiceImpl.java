@@ -63,7 +63,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public Task updateTaskStatus(Long taskId, TaskStatus newStatus) {
+    public TaskResponseDTO updateTaskStatus(Long taskId, TaskStatus newStatus) {
         // Fetch task by ID
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
@@ -77,7 +77,7 @@ public class TaskServiceImpl implements TaskService {
             projectService.updateProjectCompletion(task.getProject().getId());
         }
 
-        return updatedTask;
+        return mapToResponse(updatedTask);
     }
 
     @Override

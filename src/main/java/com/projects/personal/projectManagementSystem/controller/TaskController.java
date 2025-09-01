@@ -50,11 +50,11 @@ public class TaskController {
     }
 
     @PutMapping("/{taskId}/status")
-    public ResponseEntity<Task> updateTaskStatus(
+    public ResponseEntity<TaskResponseDTO> updateTaskStatus(
             @PathVariable Long taskId,
             @RequestParam TaskStatus status
     ) {
-        Task updatedTask = taskService.updateTaskStatus(taskId, status);
+        TaskResponseDTO updatedTask = taskService.updateTaskStatus(taskId, status);
         return ResponseEntity.ok(updatedTask);
     }
 

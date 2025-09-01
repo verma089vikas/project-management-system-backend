@@ -15,7 +15,7 @@ public interface TaskService {
     Task getTaskById(Long id);
     void deleteTask(Long id);
     List<TaskDependency> getDependencies(Long taskId);
-    Task updateTaskStatus(Long taskId, TaskStatus newStatus);
+    TaskResponseDTO updateTaskStatus(Long taskId, TaskStatus newStatus);
     List<TaskResponseDTO> getTasksByProjectId(Long projectId);
 
 }
