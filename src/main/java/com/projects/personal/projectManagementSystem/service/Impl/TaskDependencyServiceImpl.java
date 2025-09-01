@@ -1,5 +1,6 @@
 package com.projects.personal.projectManagementSystem.service.Impl;
 
+import com.projects.personal.projectManagementSystem.dto.TaskDependencyResponseDTO;
 import com.projects.personal.projectManagementSystem.entity.Task;
 import com.projects.personal.projectManagementSystem.entity.TaskDependency;
 import com.projects.personal.projectManagementSystem.repository.TaskDependencyRepository;
@@ -21,7 +22,7 @@ public class TaskDependencyServiceImpl implements TaskDependencyService {
 
     @Override
     @Transactional
-    public TaskDependency createDependency(Long taskId, Long dependsOnTaskId) {
+    public TaskDependencyResponseDTO createDependency(Long taskId, Long dependsOnTaskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new EntityNotFoundException("Task not found: " + taskId));
         Task dependsOnTask = taskRepository.findById(dependsOnTaskId)
@@ -37,7 +38,7 @@ public class TaskDependencyServiceImpl implements TaskDependencyService {
                 .dependsOnTask(dependsOnTask)
                 .build();
 
-        return taskDependencyRepository.save(dependency);
+        return toResponseDto(taskDependencyRepository.save(dependency));
     }
 
     private boolean isCyclePresent(Long taskId, Long dependsOnTaskId) {
@@ -77,5 +78,16 @@ public class TaskDependencyServiceImpl implements TaskDependencyService {
             throw new EntityNotFoundException("Task Dependency not found with ID: " + dependencyId);
         }
         taskDependencyRepository.deleteById(dependencyId);
+    }
+
+    public static TaskDependencyResponseDTO toResponseDto(TaskDependency dependency) {
+        return TaskDependencyResponseDTO.builder()
+                .id(dependency.getId())
+                .createdAt(dependency.getCreatedAt())
+                .taskId(dependency.getTask().getId())
+                .taskTitle(dependency.getTask().getTitle())
+                .dependsOnTaskId(dependency.getDependsOnTask().getId())
+                .dependsOnTaskTitle(dependency.getDependsOnTask().getTitle())
+                .build();
     }
 }

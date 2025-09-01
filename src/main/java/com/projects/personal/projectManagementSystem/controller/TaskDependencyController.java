@@ -1,5 +1,6 @@
 package com.projects.personal.projectManagementSystem.controller;
 
+import com.projects.personal.projectManagementSystem.dto.TaskDependencyResponseDTO;
 import com.projects.personal.projectManagementSystem.entity.TaskDependency;
 import com.projects.personal.projectManagementSystem.service.TaskDependencyService;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +19,10 @@ public class TaskDependencyController {
 
     // Create dependency
     @PostMapping
-    public ResponseEntity<TaskDependency> createDependency(
+    public ResponseEntity<TaskDependencyResponseDTO> createDependency(
             @RequestParam Long taskId,
             @RequestParam Long dependsOnTaskId) {
-        TaskDependency dependency = taskDependencyService.createDependency(taskId, dependsOnTaskId);
+        TaskDependencyResponseDTO dependency = taskDependencyService.createDependency(taskId, dependsOnTaskId);
         return ResponseEntity.ok(dependency);
     }
 
